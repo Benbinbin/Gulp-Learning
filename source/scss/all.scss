@@ -1,0 +1,10 @@
+$primary-color: orange;
+
+body {
+    color: $primary-color;
+}
+
+.card {
+    transform: rotate(120deg);
+    filter: blur(5px);
+}

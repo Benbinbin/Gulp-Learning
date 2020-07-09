@@ -1,0 +1,21 @@
+{
+  "name": "gulp_demo_project",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "Ben"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.5.1",
+    "bootstrap": "^4.5.0"
+  }
+}
