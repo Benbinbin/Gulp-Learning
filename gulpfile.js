@@ -11,7 +11,7 @@ var gulp = require('gulp');
 */
 const $ = require('gulp-load-plugins')();
 
-var gulpSequence = require('gulp-sequence');   // 插件 gulp-sequence 将一系列的 gulp 任务按照顺序 sequence 执行
+var gulpSequence = require('gulp-sequence'); // 插件 gulp-sequence 将一系列的 gulp 任务按照顺序 sequence 执行
 
 
 // var jade = require('gulp-jade');   // HTML 模板语言 jade 编译插件
@@ -42,9 +42,11 @@ var envOptions = {
 
 // 配置 minimist 插件
 var options = minimist(process.argv.slice(2), envOptions);
-console.log(options);   // 测试输出
+console.log(options); // 测试输出
 
 // var watch = require('gulp-watch');   //
+
+var ghPages = require('gulp-gh-pages');
 
 // gulp.task('copyHTML', function() {
 //   return gulp.src('./source/**/*.html')
@@ -63,21 +65,21 @@ gulp.task('jade', function () {
   // var YOUR_LOCALS = {};
 
   gulp.src('./source/*.jade') // 路径可以改为 gulp.src('./source/**/*.jade') 让 gulp 可以对目录 source 及其所有子目录下的 jade 文件都可以进行编译
-    .pipe($.plumber())   // 一般在任务初都添加 plumber 插件捕获可能产生的错误，避免错误使得任务暂停
+    .pipe($.plumber()) // 一般在任务初都添加 plumber 插件捕获可能产生的错误，避免错误使得任务暂停
     .pipe($.jade({
       // locals: YOUR_LOCALS
-      pretty: true   // 添加该属性可以让 HTML 代码排版适合阅读（不进行压缩）
+      pretty: true // 添加该属性可以让 HTML 代码排版适合阅读（不进行压缩）
     }))
-    .pipe(gulp.dest('./public/'))   // 将文件输出到指定路径
-    .pipe(browserSync.stream())   // 当文件输出后调用 browserSync 插件的方法 stream 重新加载网页
+    .pipe(gulp.dest('./public/')) // 将文件输出到指定路径
+    .pipe(browserSync.stream()) // 当文件输出后调用 browserSync 插件的方法 stream 重新加载网页
 });
 
 // sass 任务：对 scss 文件进行编译、压缩
 gulp.task('sass', function () {
   return gulp.src('./source/scss/**/*.scss')
     .pipe($.plumber())
-    .pipe($.sourcemaps.init())   // 在编译前先初始化 sourcemaps 插件，准备为编译后的文件插入标记
-    .pipe($.sass().on('error', $.sass.logError))   // 对 scss 文件进行编译
+    .pipe($.sourcemaps.init()) // 在编译前先初始化 sourcemaps 插件，准备为编译后的文件插入标记
+    .pipe($.sass().on('error', $.sass.logError)) // 对 scss 文件进行编译
     .pipe($.postcss([autoprefixer()])) // scss 编译完成，执行 CSS 后编译，为 CSS 样式添加前缀以实现多浏览器版本的适配
     // 条件性编译，如果在 production 环境下实行 gulp 任务就会对 CSS 进行压缩
     .pipe($.if(options.env === 'production', $.cleanCss()))
@@ -95,10 +97,10 @@ gulp.task('babel', () =>
   .pipe($.babel({
     presets: ['@babel/env']
   }))
-  .pipe($.concat('all.js'))   // 合并多个 JavaScript 脚本为一个文件
+  .pipe($.concat('all.js')) // 合并多个 JavaScript 脚本为一个文件
   .pipe($.if(options.env === 'production', $.uglify({
     compress: {
-      drop_console: true   // 在 production 环境下编译时删除 JavaScript 脚本中 console.log() 语句
+      drop_console: true // 在 production 环境下编译时删除 JavaScript 脚本中 console.log() 语句
     }
   })))
   .pipe($.sourcemaps.write('.'))
@@ -112,23 +114,32 @@ gulp.task('bower', function () {
     .pipe(gulp.dest('./.tmp/vendors'))
 });
 
-// venderJS 任务：将 bower 任务提取出来的 JavaScript 多个文件合并为一个 venders.js 文件
+// vender 任务：将 bower 任务提取出来的多个文件进行合并为一个文件
 // 其中为了确保 bower 任务先执行完成，再执行该任务，需要在回调函数前将 bower 任务（以数组形式）作为参数传入
-gulp.task('venderJS', ['bower'], function () {
+gulp.task('vender', ['bower'], function () {
   gulp.src('./.tmp/vendors/**/*.js')
     .pipe($.concat('venders.js'))
-    .pipe($.if(options.env === 'production', $.uglify()))
-    .pipe(gulp.dest('./public/js'))
-})
+    .pipe($.if(options.env === 'production', $.uglify({
+      compress: {
+        drop_console: true // 在 production 环境下编译时删除 JavaScript 脚本中 console.log() 语句
+      }
+    })))
+    .pipe(gulp.dest('./public/js'));
 
-// venderCSS 任务：将 bower 任务提取出来的 CSS 多个文件合并为一个 venders.css 文件
-// 其中为了确保 bower 任务先执行完成，再执行该任务，需要在回调函数前将 bower 任务（以数组形式）作为参数传入
-gulp.task('venderCSS', ['bower'], function () {
   gulp.src('./.tmp/vendors/**/*.css')
     .pipe($.concat('venders.css'))
     .pipe($.if(options.env === 'production', $.cleanCss()))
     .pipe(gulp.dest('./public/css'))
 })
+
+// venderCSS 任务：将 bower 任务提取出来的 CSS 多个文件合并为一个 venders.css 文件
+// 其中为了确保 bower 任务先执行完成，再执行该任务，需要在回调函数前将 bower 任务（以数组形式）作为参数传入
+// gulp.task('venderCSS', function () {
+//   gulp.src('./.tmp/vendors/**/*.css')
+//     .pipe($.concat('venders.css'))
+//     .pipe($.if(options.env === 'production', $.cleanCss()))
+//     .pipe(gulp.dest('./public/css'))
+// })
 
 // image-min 任务：将图片进行压缩
 gulp.task('image-min', () => (
@@ -162,14 +173,13 @@ gulp.task('watch', function () {
 });
 
 // build 任务：使用 gulp-sequence 插件依次执行指定的任务
-gulp.task('build', gulpSequence('clean', 'jade', 'sass', 'babel', 'venderJS'))
+gulp.task('build', gulpSequence('clean', 'jade', 'sass', 'babel', 'vender', 'image-min'))
 
 // deploy 任务：使用 gulp-gh-pages 插件将项目发布到 GitHub Page
 gulp.task('deploy', function () {
   return gulp.src('./public/**/*')
-    .pipe($.ghPages());
+    .pipe(ghPages());
 });
 
 // default 任务：gulp 模块也支持依次执行指定的任务，以 default 命名的任务在终端中只需要命令 gulp 就可以执行（而无需如一般形式 gulp task_name 指定任务名称的形式）
-gulp.task('default', ['jade', 'sass', 'babel', 'venderJS', "venderCSS", 'image-min', 'browser-sync', 'watch'
-]);
+gulp.task('default', ['jade', 'sass', 'babel', 'vender', 'image-min', 'browser-sync', 'watch']);
