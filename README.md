@@ -65,13 +65,13 @@ npm init
     * [autoprefixer](https://www.npmjs.com/package/autoprefixer) 它是 gulp-postcss 的拓展插件，根据需求为 CSS 样式添加前缀，实现网页的多浏览器版本适配
     :bulb: 浏览器相容性设置在 `package.json` 文件中
 
-```json
-"browserslist": [
-"last 1 version",
-"> 5%"
-]
-```
-    
+    ```json
+    "browserslist": [
+      "last 1 version",
+      "> 5%"
+    ]
+    ```
+
 * [gulp-load-plugins](https://www.npmjs.com/package/gulp-load-plugins) 可以自动载入 gulp 系列的插件，使代码更简洁提高编写脚本的效率 :warning: 但对于非 gulp 系列的插件，则需要使用 `require` 方法来加载 node_modules 的模块
 
 * [gulp-babel](https://www.npmjs.com/package/gulp-babel) 主流的 JavaScript ES6 编译工具，可以设置兼容的版本
@@ -81,12 +81,63 @@ npm init
 
 * [Browser Sync](https://www.npmjs.com/package/browser-sync) 创建一个本地服务器，提供 Liveload 功能，适合开发时使用，具体使用方法可以查看[官方说明文档](https://browsersync.io/docs)
 
+:warning: browser-sync 效能調整
+
+如果项目文件较多，频繁地重载页面会影响计算机性能，可以调整插件参数以限制必须超过特定时间间隔才允许刷新页面，以减少页面不必要的自动重载
+
+```js
+browserSync.init({
+ server: { baseDir: './public' },
+ // 此段加入以後，重新整理的間隔必須超過 2 秒
+ reloadDebounce: 2000
+ })
+```
+
 * [main-bower-files](https://www.npmjs.com/package/main-bower-files) 配合[前端模块管理工具 Bower](https://bower.io/) 的插件，可以从 `bower.json` 记录（安装）的项目依赖模块中抽取编译出相应的 JavaScript 文件 :bulb: bower 相关设置在 [`.bowerrc` 文件](https://bower.io/docs/config/)中，如设置项目依赖模块的下载目录
 
+:bulb:  bower 并非可以准确地提取所有模块的 JavaScript 脚本，如对于 Vue.js 它就不会正确提取 `dist` 目录下的 `vue.js`，此時可以通过自定义的 `mainBowerFiles` 方式来调整
+
+1. 先安裝 `vuejs` 的模块
+
+```bash
+$ bower install vue --save
+```
+2. `gulpfile.js` 加入以下 overrides
+
+```js
+gulp.task('bower', function() {
+  return gulp.src(mainBowerFiles({
+    "overrides": {
+        "vue": {                       // 套件名稱
+            "main": "dist/vue.js"      // 取用的資料夾路徑
+        }
+    }
+  }))
+    .pipe(gulp.dest('./.tmp/vendors'));
+    cb(err);
+});
+```
+
+* [gulp-order](https://www.npmjs.com/package/gulp-order) 如果载入、合并的模块 JavaScript 脚本需要排序，可以使用该插件。如 Bootstrap 与 jQuery 会有先后依赖顺序
+
+```js
+gulp.task('vendorJs', \['bower'\], function(){
+  return gulp.src(\['./.tmp/vendors/**/**.js'\])
+    .pipe($.order(\[
+      'jquery.js',
+      'bootstrap.js'
+    \]))
+    .pipe($.concat('vendor.js'))
+    .pipe(gulp.dest('./public/javascripts'))
+})
+```
+
 * [gulp-minify-css](https://www.npmjs.com/package/gulp-minify-css)  压缩 CSS 插件，一般放在编译完生成 CSS 的插件后
+:bulb: gulp-minify-css 作者不再维护该插件了，推荐使用 [gulp-clean-css](https://github.com/scniro/gulp-clean-css) 插件
 
-* [gulp-uglify](https://www.npmjs.com/package/gulp-uglify) 压缩 JavaScript 工具
+* [gulp-uglify](https://www.npmjs.com/package/gulp-uglify) 压缩 JavaScript 插件，可定制压缩图片的格式、效率、压缩比等参数
 
+* [gulp-imagemin](https://www.npmjs.com/package/gulp-imagemin) 压缩图片插件
 * [minimist](https://www.npmjs.com/package/minimist) 可以接收在终端执行 gulp 命令时输入参数，一般结合 [gulp-if](https://www.npmjs.com/package/gulp-if) 插件让参数作为 gulp 任务的一部分，实现控制 gulp 自动化任务的条件性执行，如可以实现开发环境 develop 和发布环境 production 不同条件性下选择性编译文件
 
 * [gulp-if](https://www.npmjs.com/package/gulp-if) 为 gulp 任务添加判断式功能
@@ -94,3 +145,5 @@ npm init
 * [gulp-clean](https://www.npmjs.com/package/gulp-clean) 删除指定的文件或目录
 
 * [gulp-sequence](https://www.npmjs.com/package/gulp-sequence) 将一系列的 gulp 任务按照顺序 sequence 执行
+
+* [gulp-gh-pages](https://www.npmjs.com/package/gulp-gh-pages) 将项目（编译生成的文件）发布到 github page 上（项目已经托管到 github 中，使用该插件就可以快速将编译后交付的文件上传到 gh-page 分支）

@@ -106,7 +106,7 @@ gulp.task('babel', () =>
   .pipe(browserSync.stream())
 );
 
-// bower 任务：配合前端模块管理工具 Bower 的插件，可以从 bower.json 记录（安装）的项目依赖模块中抽取编译出相应的 JavaScript 文件
+// bower 任务：配合前端模块管理工具 Bower 的插件，可以从 bower.json 记录（安装）的项目依赖模块中抽取编译出相应的文件（默认只提取 js 文件，可以在 bower.json 文件中添加 overrides 对象，修改提取的文件）
 gulp.task('bower', function () {
   return gulp.src(mainBowerFiles())
     .pipe(gulp.dest('./.tmp/vendors'))
@@ -117,9 +117,25 @@ gulp.task('bower', function () {
 gulp.task('venderJS', ['bower'], function () {
   gulp.src('./.tmp/vendors/**/*.js')
     .pipe($.concat('venders.js'))
-    .pipe($.if(options.env === 'productions', $.uglify()))
+    .pipe($.if(options.env === 'production', $.uglify()))
     .pipe(gulp.dest('./public/js'))
 })
+
+// venderCSS 任务：将 bower 任务提取出来的 CSS 多个文件合并为一个 venders.css 文件
+// 其中为了确保 bower 任务先执行完成，再执行该任务，需要在回调函数前将 bower 任务（以数组形式）作为参数传入
+gulp.task('venderCSS', ['bower'], function () {
+  gulp.src('./.tmp/vendors/**/*.css')
+    .pipe($.concat('venders.css'))
+    .pipe($.if(options.env === 'production', $.cleanCss()))
+    .pipe(gulp.dest('./public/css'))
+})
+
+// image-min 任务：将图片进行压缩
+gulp.task('image-min', () => (
+  gulp.src('./source/images/*')
+  .pipe($.if(options.env === 'production', $.imagemin()))
+  .pipe(gulp.dest('./public/images'))
+))
 
 // browser-sync 任务：开启一个本地服务器，加载的网页路径在 baseDir 参数中指定
 // Static server
@@ -148,5 +164,12 @@ gulp.task('watch', function () {
 // build 任务：使用 gulp-sequence 插件依次执行指定的任务
 gulp.task('build', gulpSequence('clean', 'jade', 'sass', 'babel', 'venderJS'))
 
+// deploy 任务：使用 gulp-gh-pages 插件将项目发布到 GitHub Page
+gulp.task('deploy', function () {
+  return gulp.src('./public/**/*')
+    .pipe($.ghPages());
+});
+
 // default 任务：gulp 模块也支持依次执行指定的任务，以 default 命名的任务在终端中只需要命令 gulp 就可以执行（而无需如一般形式 gulp task_name 指定任务名称的形式）
-gulp.task('default', ['jade', 'sass', 'babel', 'venderJS', 'browser-sync', 'watch']);
+gulp.task('default', ['jade', 'sass', 'babel', 'venderJS', "venderCSS", 'image-min', 'browser-sync', 'watch'
+]);
