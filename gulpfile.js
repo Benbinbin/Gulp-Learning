@@ -186,7 +186,7 @@ gulp.task('watch', function () {
   $.watch('./source/scss/**/*.scss', function () {
     gulp.start('sass')
   });
-  $.watch('./source/*.jade', function () {
+  $.watch('./source/**/*.jade', function () {
     gulp.start('jade')
   });
   $.watch('./source/js/**/*.js', function () {

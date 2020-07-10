@@ -1,7 +1,8 @@
 extend layout.jade
 
 block navbar
-    include partials/navbar.jade
+  - var path = 'index.html'
+  include partials/navbar.jade
 
 block content
     // 缩进表示替换 block 占位符的内容

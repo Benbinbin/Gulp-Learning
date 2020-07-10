@@ -1,0 +1,16 @@
+extend layout.jade
+
+block navbar
+  - var path = 'kh.html'
+  include partials/navbar.jade
+
+block content
+  .card-columns
+    each item in khData.result.records
+      .card
+        img.card-img-top(src='#{item.Picture1}', alt='...')
+        .card-body
+          h5.card-title #{item.Name}
+          p.card-text
+            | #{item.Description}
+
