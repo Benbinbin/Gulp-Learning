@@ -44,9 +44,7 @@ var envOptions = {
 var options = minimist(process.argv.slice(2), envOptions);
 console.log(options); // 测试输出
 
-// var watch = require('gulp-watch');   //
-
-var ghPages = require('gulp-gh-pages');
+// var watch = require('gulp-watch');   // 类似于「增强型」的 gulp.watch 插件，除了可以监听文件内容变动，还可以监听文件添加、删除
 
 // gulp.task('copyHTML', function() {
 //   return gulp.src('./source/**/*.html')
@@ -66,10 +64,22 @@ gulp.task('jade', function () {
 
   gulp.src('./source/*.jade') // 路径可以改为 gulp.src('./source/**/*.jade') 让 gulp 可以对目录 source 及其所有子目录下的 jade 文件都可以进行编译
     .pipe($.plumber()) // 一般在任务初都添加 plumber 插件捕获可能产生的错误，避免错误使得任务暂停
+    .pipe($.sourcemaps.init())
+    // 使用 gulp-data 插件将外部数据作为一个文件对象传递给 jade 插件使用
+    .pipe($.data(function() {
+      var menu = require('./source/data/menu.json');
+      var khData = require('./source/data/data.json');
+      var source = {
+        khData: khData,
+        menu: menu
+      };
+      return source;
+    }))
     .pipe($.jade({
       // locals: YOUR_LOCALS
       pretty: true // 添加该属性可以让 HTML 代码排版适合阅读（不进行压缩）
     }))
+    .pipe($.sourcemaps.write('.'))
     .pipe(gulp.dest('./public/')) // 将文件输出到指定路径
     .pipe(browserSync.stream()) // 当文件输出后调用 browserSync 插件的方法 stream 重新加载网页
 });
@@ -117,18 +127,30 @@ gulp.task('bower', function () {
 // vender 任务：将 bower 任务提取出来的多个文件进行合并为一个文件
 // 其中为了确保 bower 任务先执行完成，再执行该任务，需要在回调函数前将 bower 任务（以数组形式）作为参数传入
 gulp.task('vender', ['bower'], function () {
+  // 将多个模块的 JavaScript 脚本合并为一个 venders.js 文件
   gulp.src('./.tmp/vendors/**/*.js')
+    .pipe($.order([
+      'jquery.js',
+      'bootstrap.js'
+    ]))
+    .pipe($.plumber())
+    .pipe($.sourcemaps.init())
     .pipe($.concat('venders.js'))
     .pipe($.if(options.env === 'production', $.uglify({
       compress: {
         drop_console: true // 在 production 环境下编译时删除 JavaScript 脚本中 console.log() 语句
       }
     })))
+    .pipe($.sourcemaps.write('.'))
     .pipe(gulp.dest('./public/js'));
 
+  // 将多个模块的 css 样式表合并为一个 venders.css 文件
   gulp.src('./.tmp/vendors/**/*.css')
+    .pipe($.plumber())
+    .pipe($.sourcemaps.init())
     .pipe($.concat('venders.css'))
     .pipe($.if(options.env === 'production', $.cleanCss()))
+    .pipe($.sourcemaps.write('.'))
     .pipe(gulp.dest('./public/css'))
 })
 
@@ -178,7 +200,7 @@ gulp.task('build', gulpSequence('clean', 'jade', 'sass', 'babel', 'vender', 'ima
 // deploy 任务：使用 gulp-gh-pages 插件将项目发布到 GitHub Page
 gulp.task('deploy', function () {
   return gulp.src('./public/**/*')
-    .pipe(ghPages());
+    .pipe($.ghPages());
 });
 
 // default 任务：gulp 模块也支持依次执行指定的任务，以 default 命名的任务在终端中只需要命令 gulp 就可以执行（而无需如一般形式 gulp task_name 指定任务名称的形式）
