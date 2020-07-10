@@ -1,10 +1,27 @@
-$primary-color: orange;
+// $primary-color: orange;
 
-body {
-    color: $primary-color;
-}
+// body {
+//     color: $primary-color;
+// }
 
-.card {
-    // transform: rotate(120deg);
-    // filter: blur(5px);
-}
+// .card {
+//     // transform: rotate(120deg);
+//     // filter: blur(5px);
+// }
+
+// 条件性载入 bootstrap 的组件 scss
+// 可以进行定制化
+// @import 'bootstrap'
+
+// Required
+@import "functions";
+@import "./helper/variables";
+@import "mixins";
+
+@import "navbar";
+@import "transitions";
+@import "card";
+@import "grid";
+@import "forms";
+
+@import "utilities";

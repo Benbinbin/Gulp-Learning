@@ -89,7 +89,12 @@ gulp.task('sass', function () {
   return gulp.src('./source/scss/**/*.scss')
     .pipe($.plumber())
     .pipe($.sourcemaps.init()) // 在编译前先初始化 sourcemaps 插件，准备为编译后的文件插入标记
-    .pipe($.sass().on('error', $.sass.logError)) // 对 scss 文件进行编译
+    .pipe($.sass({
+      // 以嵌套（非压缩，方便阅读）导入并编译模块中的 scss，如果在编译同时压缩 css 可以将该参数设置为 compressed
+      outputStyle: 'nested',
+      // 为 sass 编译器添加环境变量，当解释编译 scss 文档中的 @import 语句时，编译器会在 includePaths 指定路径中寻找依赖的外部 scss 文档
+      includePaths: ['./node_modules/bootstrap/scss']
+    }).on('error', $.sass.logError)) // 对 scss 文件进行编译
     .pipe($.postcss([autoprefixer()])) // scss 编译完成，执行 CSS 后编译，为 CSS 样式添加前缀以实现多浏览器版本的适配
     // 条件性编译，如果在 production 环境下实行 gulp 任务就会对 CSS 进行压缩
     .pipe($.if(options.env === 'production', $.cleanCss()))
@@ -145,13 +150,13 @@ gulp.task('vender', ['bower'], function () {
     .pipe(gulp.dest('./public/js'));
 
   // 将多个模块的 css 样式表合并为一个 venders.css 文件
-  gulp.src('./.tmp/vendors/**/*.css')
-    .pipe($.plumber())
-    .pipe($.sourcemaps.init())
-    .pipe($.concat('venders.css'))
-    .pipe($.if(options.env === 'production', $.cleanCss()))
-    .pipe($.sourcemaps.write('.'))
-    .pipe(gulp.dest('./public/css'))
+  // gulp.src('./.tmp/vendors/**/*.css')
+  //   .pipe($.plumber())
+  //   .pipe($.sourcemaps.init())
+  //   .pipe($.concat('venders.css'))
+  //   .pipe($.if(options.env === 'production', $.cleanCss()))
+  //   .pipe($.sourcemaps.write('.'))
+  //   .pipe(gulp.dest('./public/css'))
 })
 
 // venderCSS 任务：将 bower 任务提取出来的 CSS 多个文件合并为一个 venders.css 文件

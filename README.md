@@ -59,6 +59,20 @@ npm init
 
 * [gulp-sass](https://www.npmjs.com/package/gulp-sass) CSS 预处理器
 
+:bulb: 如果还需要将 模块 `node_modules` 中的 scss 一并提取编译，可以在插件函数中添加 `includePaths` 属性来载入
+
+```js
+gulp.task('sass', function() {
+    // ...
+    .pipe($.sass({
+        // 以嵌套（非压缩，方便阅读）导入并编译模块中的 scss
+        outputStyle: 'nested',
+        // 为 sass 编译器添加环境变量，当解释编译 scss 文档中的 @import 语句时，编译器会在 includePaths 指定路径中寻找依赖的外部 scss 文档
+        includePaths: ['scss_file_noede_moduls_path']
+    })
+});
+```
+
 * [gulp-plumber](https://www.npmjs.com/package/gulp-plumber) 修改了 Gulp 运行时抛出错误暂停的默认行为，可以在终端输出错误但运行不中断，一般设置在每项任务的导入文件之后
 
 * [gulp-postcss](https://www.npmjs.com/package/gulp-postcss) CSS 后处理器，一般设置在 CSS 预处理器后对编译后的 CSS 进行额外的处理
@@ -121,12 +135,12 @@ gulp.task('bower', function() {
 * [gulp-order](https://www.npmjs.com/package/gulp-order) 如果载入、合并的模块 JavaScript 脚本需要排序，可以使用该插件。如 Bootstrap 与 jQuery 会有先后依赖顺序
 
 ```js
-gulp.task('vendorJs', \['bower'\], function(){
-  return gulp.src(\['./.tmp/vendors/**/**.js'\])
-    .pipe($.order(\[
+gulp.task('vendorJs', ['bower'], function(){
+  return gulp.src(['./.tmp/vendors/**/**.js'])
+    .pipe($.order([
       'jquery.js',
       'bootstrap.js'
-    \]))
+    ]))
     .pipe($.concat('vendor.js'))
     .pipe(gulp.dest('./public/javascripts'))
 })
@@ -147,3 +161,5 @@ gulp.task('vendorJs', \['bower'\], function(){
 * [gulp-sequence](https://www.npmjs.com/package/gulp-sequence) 将一系列的 gulp 任务按照顺序 sequence 执行
 
 * [gulp-gh-pages](https://www.npmjs.com/package/gulp-gh-pages) 将项目（编译生成的文件）发布到 github page 上（项目已经托管到 github 中，使用该插件就可以快速将编译后交付的文件上传到 gh-page 分支）
+
+* [gulp-data](https://www.npmjs.com/package/gulp-data) 该插件提出了一个通用 API，将各种来源、格式的数据作为一个文件对象传递给其他插件使用。
