@@ -4,13 +4,12 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Document</title>
-    <link rel="stylesheet" href="./css/venders.css"/>
     <link rel="stylesheet" href="css/all.css"/>
     <script src="js/all.js"></script>
   </head>
   <body>
     <!-- 使用在线工具 http://html2jade.org/ 将 bootstrap 演示代码 HTML 转换为 jade-->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light"><a href="#" class="navbar-brand">Navbar</a>
+    <nav class="navbar navbar-expand-lg navbar-light bg-primary"><a href="#" class="navbar-brand">Navbar</a>
       <button type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"><span class="navbar-toggler-icon"></span></button>
       <div id="navbarSupportedContent" class="collapse navbar-collapse">
         <ul class="navbar-nav mr-auto">
@@ -21,29 +20,30 @@
     </nav>
     <div class="container">
       <!-- 缩进表示替换 block 占位符的内容-->
-      <h1><span>title</span>
-        <!-- 插入同级文本内容，以管道符号开始作分隔-->Another content
-      </h1>
-      <ul>
-        <li>
-          <!-- 元素的属性在括号中--><a href="#">link</a>
-        </li>
-        <li><a href="#">link</a></li>
-        <li><a href="#">link</a></li>
-      </ul>
-      <!-- 可以将嵌套的元素写在同一行，使用冒号 : 分隔-->
-      <h1><a href="#"><span>链接</span></a></h1>
-      <hr/>
-      <!-- 元素的类属性可以使用类的字面值 .classname 语法来定义，如果省略了元素就默认使用块元素 div-->
       <div class="container">
-        <form action="">
-          <label for="email">请输入 Email</label>
-          <!-- 元素的 ID 属性可以使用 #idname 语法来定义-->
-          <!-- 元素多个属性可以用空格或逗号分隔-->
-          <input id="email" type="text" class="input-sm form-control"/>
-        </form>
+        <h1><span>Gulp</span>
+          <!-- 插入同级文本内容，以管道符号开始作分隔-->学习
+        </h1>
+        <ul>
+          <li>
+            <!-- 元素的属性在括号中--><a href="#">link</a>
+          </li>
+          <li><a href="#">link</a></li>
+          <li><a href="#">link</a></li>
+        </ul>
+        <!-- 可以将嵌套的元素写在同一行，使用冒号 : 分隔-->
+        <h1><a href="#"><span>链接</span></a></h1>
+        <hr/>
+        <!-- 元素的类属性可以使用类的字面值 .classname 语法来定义，如果省略了元素就默认使用块元素 div-->
+        <div class="container">
+          <form action="">
+            <label for="email">请输入 Email</label>
+            <!-- 元素的 ID 属性可以使用 #idname 语法来定义-->
+            <!-- 元素多个属性可以用空格或逗号分隔-->
+            <input id="email" type="text" class="input-sm form-control"/>
+          </form>
+        </div>
       </div>
-      <h1>高雄旅遊網靜態頁面</h1>
       <script src="./js/venders.js"></script>
     </div>
   </body>
